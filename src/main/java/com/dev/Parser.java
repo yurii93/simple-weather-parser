@@ -17,11 +17,11 @@ public class Parser {
 
     private final static String DEFAULT_KIEV_PARSE_URL = "http://www.nepogoda.ru/europe/ukrain/kiev/";
     private final String parseUrl;
-    private final static Pattern datePattern = Pattern.compile("\\d{2}\\.\\d{2}");
-    private final static Map<String, Integer> outputFormatScheme = new LinkedHashMap<>();
+    private final Pattern datePattern = Pattern.compile("\\d{2}\\.\\d{2}");
+    private final Map<String, Integer> outputFormatScheme = new LinkedHashMap<>();
     private static List<List<String>> weatherDataByDate = new ArrayList<>();
 
-    static {
+    {
         outputFormatScheme.put("ДАТА", 10);
         outputFormatScheme.put("ЧАСТЬ СУТОК", 15);
         outputFormatScheme.put("ПОГОДНЫЕ ЯВЛЕНИЯ", 80);
@@ -31,14 +31,14 @@ public class Parser {
         outputFormatScheme.put("ВЕТЕР", 12);
     }
 
-    private Parser(String parseUrl) {
-        this.parseUrl = parseUrl;
-    }
-
     public static void main(String[] args) throws NoSuchElementException, IOException {
         Parser parser = new Parser(DEFAULT_KIEV_PARSE_URL);
         parser.initParsing();
         parser.printData();
+    }
+
+    private Parser(String parseUrl) {
+        this.parseUrl = parseUrl;
     }
 
     private void initParsing() throws IOException {
@@ -66,14 +66,14 @@ public class Parser {
         }
     }
 
-    private static List<String> collectWeatherDataByDate(Element row, String date) {
+    private List<String> collectWeatherDataByDate(Element row, String date) {
         return Stream.concat(
                 Stream.of(date),
                 row.select("td").stream().map(Element::text)
         ).collect(Collectors.toList());
     }
 
-    private static void printTitle() {
+    private void printTitle() {
         if (!weatherDataByDate.isEmpty()) {
             outputFormatScheme.forEach((key, value) -> System.out.printf("%-" + value + "s", key));
             System.out.println();
@@ -82,7 +82,7 @@ public class Parser {
         }
     }
 
-    private static void printWeatherData() {
+    private void printWeatherData() {
         if (!weatherDataByDate.isEmpty()) {
             ArrayList<Integer> valuesList = new ArrayList<>(outputFormatScheme.values());
             weatherDataByDate.forEach((row -> {
@@ -96,7 +96,7 @@ public class Parser {
         }
     }
 
-    private static String getDateFromString(String stringDate) throws NoSuchElementException {
+    private String getDateFromString(String stringDate) throws NoSuchElementException {
         Matcher matcher = datePattern.matcher(stringDate);
         if (matcher.find()) {
             return matcher.group();
